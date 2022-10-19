@@ -88,7 +88,6 @@ def main():
     print(b.transpose())
 
     lam = 0.001
-
     F_l2_steps, l2_min = proximal_gradient_l_2(A, b, n_samples, lam, idx, x_star)
     F_l1_steps, l1_min = proximal_gradient_l_1(A, b, n_samples, lam, idx, x_star)
 
