@@ -55,6 +55,11 @@ def gradient(A, b, n_samples, x):
     return (1 / n_samples) * sum(numerator / denominator)
 
 
+def F_minimizer_l1(A, b, n_samples, lam, x_k, x_norm):
+    ab = np.dot(A.transpose(), -b)
+    return (1/ (2 * n_samples)) * sum(np.log(1 + np.exp(ab * x_k))) + lam * x_k
+
+
 def main():
     n_features = 50  # The dimension of the feature is set to 50
     n_samples = 1000  # Generate 1000 training data
@@ -65,22 +70,50 @@ def main():
 
     A, b = sim_logistic_regression(n_features, coefs)
 
-    num_iter = 100000
-    x_curr = 0  # what is x_0
-    eta = 0.1
-    lam = 0.01
+    num_iter = 500
+    x_curr = 0.000003  # what is x_0
+    x_k = [x_curr]
+    eta = 0.05
+    lam = 0.001
 
     # Calculate lasso L1 using Nesterov
     for i in range(0, num_iter):
         gradient_result = gradient(A, b, n_samples, x_curr)
         gradient_descent_result = gradient_descent(x_curr, eta, gradient_result)
         x_next = prox_lasso(gradient_descent_result, lam)
+        x_k.append(x_curr)
 
         # x_next = prox_lasso(gradient_descent(x_curr, eta, gradient(A, b, n_samples, x_curr)), lam)
         x_curr = x_next
 
+    print(x_k)
     x_star = x_curr
 
+    # Fill array with x_star to plot and find norm
+    x_star_arr = np.empty(np.shape(x_k))
+    x_star_arr.fill(x_star)
+    norm_k_1 = np.linalg.norm(x_k, 1)
+    norm_star_1 = np.linalg.norm(x_star_arr, 1)
+
+    # calculate F(x^*)
+    F_star = F_minimizer_l1(A, b, n_samples, lam, x_star, norm_star_1)
+    F_k = []
+
+    # calculate F(x^k) at each point
+    for i in range(0, num_iter):
+        F_k.append(F_minimizer_l1(A, b, n_samples, lam, x_k[i], norm_k_1))
+
+    # Fill array with F(x^*) single result
+    F_star_arr = np.empty(np.shape(F_k))
+    F_star_arr.fill(F_star)
+
+    # Find difference array to plot, make array with iteration points
+    diff_l1 = abs(F_k - F_star_arr)
+    x_iter = np.arange(num_iter)
+
+    # Plot results
+    plt.plot(x_iter, diff_l1)
+    plt.show()
 
 
 if __name__ == "__main__":
