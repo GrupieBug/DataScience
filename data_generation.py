@@ -119,15 +119,15 @@ def main():
     f = plt.figure(1)
     g = plt.figure(2)
 
-    for lam in lams:
-        F_l1_steps, l1_min = proximal_gradient_l_1(A, b, n_samples, lam, idx, x_star)
-
-        F_l1_x_star = np.empty(np.shape(F_l1_steps))
-        F_l1_x_star.fill(l1_min)
-
-        x_l1 = idx
-        y_l1 = F_l1_steps - F_l1_x_star
-        plt.plot(x_l1, y_l1)
+    # for lam in lams:
+    #     F_l1_steps, l1_min = proximal_gradient_l_1(A, b, n_samples, lam, idx, x_star)
+    #
+    #     F_l1_x_star = np.empty(np.shape(F_l1_steps))
+    #     F_l1_x_star.fill(l1_min)
+    #
+    #     x_l1 = idx
+    #     y_l1 = F_l1_steps - F_l1_x_star
+    #     plt.plot(x_l1, y_l1)
 
     for lam in lams:
         F_l2, F_l2_star = proximal_gradient_l_2(A, b, n_samples, lam, idx, x_star)
