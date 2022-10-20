@@ -111,6 +111,8 @@ def ridge_regression(A, b, n_samples, lam, x_star):
 #     return l1, min(l1)
 
 
+
+
 def main():
     n_features = 50  # The dimension of the feature is set to 50
     n_samples = 1000  # Generate 1000 training data
