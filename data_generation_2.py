@@ -1,9 +1,7 @@
-from tkinter import X
 import numpy as np
 from numpy.random import multivariate_normal
 from scipy.linalg.special_matrices import toeplitz
 from matplotlib import pyplot as plt
-from scipy.linalg import solve_toeplitz
 
 
 def sigmoid(t):
@@ -57,7 +55,35 @@ def gradient(A, b, n_samples, x):
 
 def F_minimizer_l1(A, b, n_samples, lam, x_k, x_norm):
     ab = np.dot(A.transpose(), -b)
-    return (1/ (2 * n_samples)) * sum(np.log(1 + np.exp(ab * x_k))) + lam * x_k
+    return (1 / (2 * n_samples)) * sum(np.log(1 + np.exp(ab * x_k))) + lam * x_k
+
+
+def calc_nestrov_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
+    # Calculate lasso L1 using Nesterov
+    for i in range(0, num_iter):
+        gradient_result = gradient(A, b, n_samples, x_curr)
+        gradient_descent_result = gradient_descent(x_curr, eta, gradient_result)
+        x_next = prox_lasso(gradient_descent_result, lam)
+        x_k.append(x_curr)
+
+        x_curr = x_next
+    return x_k, x_curr
+
+
+def calc_heavy_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
+    beta = 0.1
+    momentum_term = 0
+    for i in range(0, num_iter):
+        if i >= 1:
+            momentum_term = beta * (x_k[i] - x_k[i - 1])  # not sure about the i's
+        gradient_result = gradient(A, b, n_samples, x_curr)
+        gradient_descent_result = gradient_descent(x_curr, eta, gradient_result) + momentum_term
+        x_next = prox_lasso(gradient_descent_result, lam)
+        x_k.append(x_curr)
+
+        x_curr = x_next
+
+    return x_k, x_curr
 
 
 def main():
@@ -70,24 +96,15 @@ def main():
 
     A, b = sim_logistic_regression(n_features, coefs)
 
-    num_iter = 500
-    x_curr = 0.000003  # what is x_0
+    num_iter = 10000
+    x_curr = 0.000000003  # what is x_0
     x_k = [x_curr]
     eta = 0.05
-    lam = 0.001
+    lam = 0.005
 
-    # Calculate lasso L1 using Nesterov
-    for i in range(0, num_iter):
-        gradient_result = gradient(A, b, n_samples, x_curr)
-        gradient_descent_result = gradient_descent(x_curr, eta, gradient_result)
-        x_next = prox_lasso(gradient_descent_result, lam)
-        x_k.append(x_curr)
+    x_k, x_star = calc_nestrov_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
 
-        # x_next = prox_lasso(gradient_descent(x_curr, eta, gradient(A, b, n_samples, x_curr)), lam)
-        x_curr = x_next
-
-    print(x_k)
-    x_star = x_curr
+    x_k, x_star = calc_heavy_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
 
     # Fill array with x_star to plot and find norm
     x_star_arr = np.empty(np.shape(x_k))
