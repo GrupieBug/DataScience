@@ -131,7 +131,8 @@ def calc_prox_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
     :param lam: parameter lambda
     :return: The historic x_k points and final x_* (the last value of x_k after all iterations)
     """
-    # Calculate lasso L1 using Nesterov
+    # Calculate lasso L1
+    x_k = []
     for i in range(0, num_iter):
         gradient_result = gradient(A, b, n_samples, x_curr)  # Calculate gradient at current point
         gradient_descent_result = x_curr - (eta * gradient_result)  # Calculate inside of proximal function
@@ -156,6 +157,7 @@ def calc_nesterov_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
     :param lam: parameter lambda
     :return: The historic x_k points and final x_* (the last value of x_k after all iterations)
     """
+    x_k = []
     # Calculate lasso L1 using Nesterov
     y_curr = x_curr
     for i in range(0, num_iter):
@@ -188,7 +190,7 @@ def calc_heavy_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
     momentum_term = 0
     for i in range(0, num_iter):
         if i >= 1:
-            momentum_term = beta * (x_k[i] - x_k[i - 1])
+            momentum_term = beta * (x_k[i-1] - x_k[i - 2])
         gradient_result = gradient(A, b, n_samples, x_curr)
         gradient_descent_result = gradient_descent(x_curr, eta, gradient_result) + momentum_term
         x_next = prox_lasso(gradient_descent_result, lam)
@@ -236,6 +238,8 @@ def calc_nesterov_l2(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
     :param lam:
     :return:
     """
+
+
     # Calculate lasso L1 using Nesterov
     y_curr = x_curr
     for i in range(0, num_iter):
@@ -267,7 +271,7 @@ def calc_heavy_l2(x_curr, x_k, A, b, num_iter, n_samples, eta, lam):
     momentum_term = 0
     for i in range(0, num_iter):
         if i >= 1:
-            momentum_term = beta * (x_k[i] - x_k[i - 1])  # not sure about the i's
+            momentum_term = beta * (x_k[i-1] - x_k[i - 2])  # not sure about the i's
         gradient_result = gradient(A, b, n_samples, x_curr)
         gradient_descent_result = gradient_descent(x_curr, eta, gradient_result) + momentum_term
         x_next = prox_l2(gradient_descent_result, lam)
