@@ -366,13 +366,15 @@ def main():
         plt.rcParams["figure.figsize"] = [7.50, 3.50]
         plt.rcParams["figure.autolayout"] = True
         l1_results = plt.figure(f"Lasso Regularization for lambda = {lam}")
-        plt.plot(x_iter, prox1_diff)
-        plt.plot(x_iter, heavy1_diff)
-        plt.plot(x_iter, nes1_diff)
+        plt.plot(x_iter, prox1_diff, label='Proximal Gradient Descent', color='red')
+        plt.plot(x_iter, heavy1_diff, label='Heavy ball momentum', color='blue')
+        plt.plot(x_iter, nes1_diff, label='NAG', color='magenta')
+        plt.legend()
         l2_results = plt.figure(f"Ridge Regularization for lambda = {lam}")
-        plt.plot(x_iter, prox2_diff)
-        plt.plot(x_iter, heavy2_diff)
-        plt.plot(x_iter, nes2_diff)
+        plt.plot(x_iter, prox2_diff, label='Proximal Gradient Descent', color='red')
+        plt.plot(x_iter, heavy2_diff, label='Heavy ball momentum', color='blue')
+        plt.plot(x_iter, nes2_diff, label='NAG', color='magenta')
+        plt.legend()
         plt.show()
 
 
