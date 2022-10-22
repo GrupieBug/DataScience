@@ -327,6 +327,7 @@ def main():
 
     A, b = sim_logistic_regression(n_features, coefs)
 
+    # setting parameters
     num_iter = 1000
     x_start = 1
     x_curr = x_start  # what is x_0
@@ -340,6 +341,7 @@ def main():
         x_k_heavy1, x_star_heavy1 = calc_heavy_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
         x_k_nes1, x_star_nes1 = calc_nesterov_l1(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
 
+        # calculating differences for each method
         prox1_diff = calc_f_diff(x_star_prox1, x_k_prox1, A, b, n_samples, lam, num_iter, l1=True)
         heavy1_diff = calc_f_diff(x_star_heavy1, x_k_heavy1, A, b, n_samples, lam, num_iter, l1=True)
         nes1_diff = calc_f_diff(x_star_nes1, x_k_nes1, A, b, n_samples, lam, num_iter, l1=True)
@@ -349,6 +351,7 @@ def main():
         x_k_heavy2, x_star_heavy2 = calc_heavy_l2(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
         x_k_nes2, x_star_nes2 = calc_nesterov_l2(x_curr, x_k, A, b, num_iter, n_samples, eta, lam)
 
+        # calculating differences for each method
         prox2_diff = calc_f_diff(x_star_prox2, x_k_prox2, A, b, n_samples, lam, num_iter, l1=False)
         heavy2_diff = calc_f_diff(x_star_heavy2, x_k_heavy2, A, b, n_samples, lam, num_iter, l1=False)
         nes2_diff = calc_f_diff(x_star_nes2, x_k_nes2, A, b, n_samples, lam, num_iter, l1=False)
