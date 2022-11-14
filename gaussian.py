@@ -1,3 +1,5 @@
+import collections
+
 import numpy
 from numpy.random import multivariate_normal
 from scipy import spatial
@@ -7,21 +9,41 @@ import scipy.io as sio
 
 
 def main():
-    k = 4
     d = 4
     # obtain data points
     matlab = sio.loadmat('kmeansgaussian.mat')
     data = matlab['X']
     n = len(data)
+    n_arr = numpy.arange(1, n)
 
-    # generate k number of centroids
-    centroids = generate_k_centroids(k, d)
+    sum_square_distance = []
 
-    # assign centroid for each point
-    assignments = assign_centroids(data, k, n, centroids)
+    for k in range(1, n):
+        # generate k number of centroids
+        centroids = generate_k_centroids(k, d)
 
-    # calculate new cluster location for each k cluster
-    new_centroids = reassign_centroids(centroids, data, assignments, k, d, n)
+        # assign centroid for each point
+        assignments = assign_centroids(data, k, n, centroids)
+
+        # calculate new cluster location for each k cluster
+        new_centroids = reassign_centroids(centroids, data, assignments, k, d, n)
+        new_centroids = numpy.stack(new_centroids)
+
+        while not (centroids == new_centroids).all():
+            centroids = new_centroids
+            # assign centroid for each point
+            assignments = assign_centroids(data, k, n, centroids)
+
+            # calculate new cluster location for each k cluster
+            new_centroids = reassign_centroids(centroids, data, assignments, k, d, n)
+            new_centroids = numpy.stack(new_centroids)
+
+        centroids = new_centroids
+
+        sum_square_distance.append(sum_distance(centroids, data, assignments, k, n))
+
+    plt.plot(n_arr, sum_square_distance)
+    plt.show()
 
 
 def generate_k_centroids(k, d):
@@ -64,13 +86,25 @@ def reassign_centroids(centroids, data, assignments, k, d, n):
         for i in range(0, n):
             if assignments[i] == c:
                 clustered_data.append(data[i])
-        clustered_data = numpy.stack(clustered_data)
+        if clustered_data:
+            clustered_data = numpy.stack(clustered_data)
 
-        summed_columns = [sum(x) for x in zip(*clustered_data)]
-        new_centroid = numpy.divide(summed_columns, len(clustered_data))
+            summed_columns = [sum(x) for x in zip(*clustered_data)]
+            new_centroid = numpy.divide(summed_columns, len(clustered_data))
 
-        new_centroids.append(summed_columns)
+            new_centroids.append(new_centroid)
+        else:
+            new_centroids.append(centroids[c])  # or we can reassign to new one with random coordinates
     return new_centroids
+
+
+def sum_distance(centroids, data, assignments, k, n):
+    error = 0
+    for a in range(0, n):
+        for c in range(0, k):
+            if assignments[a] == c:
+                error += calc_euclidean_distance(data[a], centroids[c])
+    return error
 
 
 if __name__ == "__main__":
