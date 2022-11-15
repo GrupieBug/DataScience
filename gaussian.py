@@ -1,5 +1,3 @@
-import collections
-
 import numpy
 from numpy.random import multivariate_normal
 from scipy import spatial
@@ -81,16 +79,20 @@ def calc_cosine_distance(data_coordinate, centroid_coordinate):
 
 def reassign_centroids(centroids, data, assignments, k, d, n):
     new_centroids = []
+    clustered_data = dict()
+    for i in range(0, n):
+        assignment = assignments[i]
+        if assignment not in clustered_data:
+            clustered_data[assignment] = []
+            clustered_data[assignment].append(data[i])
+        else:
+            clustered_data[assignment].append(data[i])
     for c in range(0, k):
-        clustered_data = []
-        for i in range(0, n):
-            if assignments[i] == c:
-                clustered_data.append(data[i])
-        if clustered_data:
-            clustered_data = numpy.stack(clustered_data)
+        if c in clustered_data:
+            cluster = numpy.stack(clustered_data[c])
 
-            summed_columns = [sum(x) for x in zip(*clustered_data)]
-            new_centroid = numpy.divide(summed_columns, len(clustered_data))
+            summed_columns = [sum(x) for x in zip(*cluster)]
+            new_centroid = numpy.divide(summed_columns, len(cluster))
 
             new_centroids.append(new_centroid)
         else:
@@ -100,10 +102,12 @@ def reassign_centroids(centroids, data, assignments, k, d, n):
 
 def sum_distance(centroids, data, assignments, k, n):
     error = 0
+    # for a in range(0, n):
+    #     for c in range(0, k):
+    #         if assignments[a] == c:
+    #             error += numpy.abs(calc_euclidean_distance(data[a], centroids[c]))
     for a in range(0, n):
-        for c in range(0, k):
-            if assignments[a] == c:
-                error += calc_euclidean_distance(data[a], centroids[c])
+        error += numpy.abs(calc_euclidean_distance(data[a], centroids[assignments[a]]))
     return error
 
 
