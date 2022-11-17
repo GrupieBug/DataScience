@@ -45,7 +45,7 @@ def main():
 
 
 def generate_k_centroids(k, d):
-    centroids = numpy.random.random((k, d))
+    centroids = numpy.random.random((k, d))  # idea: assign the initial centroids to be pre-existing data points
     return centroids
 
 
